@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  xlsx:
+    image: xlsx
+    container_name: xlsx
+    volumes:
+      - .:/app:delegated
+      - /app/node_modules
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - VIRTUAL_HOST=${HOST_NAME}
+      - LETSENCRYPT_HOST=${HOST_NAME}
+      - LETSENCRYPT_EMAIL=rich@salt-mine.io
+      - NODE_ENV=${NODE_ENV}
+      - NODE_APP_INSTANCE=${NODE_APP_INSTANCE}
+    network_mode: "webproxy"
+    restart: always
