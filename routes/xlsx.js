@@ -51,37 +51,41 @@ router.get("/", function (req, res, next) {
 });
 
 /* POST xlsx */
-router.post("/", function (req, res, next) {
-  const resData = {};
+router.post("/", async (req, res, next) => {
+  try {
+    const resData = {};
 
-  const form = new multiparty.Form({ authFile: true });
+    const form = new multiparty.Form({ authFile: true });
 
-  form.on("file", (name, file) => {
-    const workbook = xlsx.readFile(file.path);
-    const sheetNames = Object.keys(workbook.Sheets);
-    console.log("sheetNames: ", sheetNames);
+    form.on("file", (name, file) => {
+      const workbook = xlsx.readFile(file.path);
+      const sheetNames = Object.keys(workbook.Sheets);
+      console.log("sheetNames: ", sheetNames);
 
-    let i = sheetNames.length;
+      let i = sheetNames.length;
 
-    while (i--) {
-      const sheetName = sheetNames[i];
-      if (sheetName === "결과") {
-        // console.log(
-        //   "sheetName: ",
-        //   xlsx.utils.sheet_to_json(workbook.Sheets[sheetName])
-        // );
-        resData[sheetName] = xlsx.utils
-          .sheet_to_json(workbook.Sheets[sheetName])
-          .map((el) => fmAnswer(el));
+      while (i--) {
+        const sheetName = sheetNames[i];
+        if (sheetName === "결과") {
+          // console.log(
+          //   "sheetName: ",
+          //   xlsx.utils.sheet_to_json(workbook.Sheets[sheetName])
+          // );
+          resData[sheetName] = xlsx.utils
+            .sheet_to_json(workbook.Sheets[sheetName])
+            .map((el) => fmAnswer(el));
+        }
       }
-    }
-  });
+    });
 
-  form.on("close", () => {
-    res.send(resData);
-  });
+    form.on("close", () => {
+      res.send(resData);
+    });
 
-  form.parse(req);
+    form.parse(req);
+  } catch (error) {
+    console.log("error: ", error);
+  }
 });
 
 module.exports = router;
